@@ -10,7 +10,7 @@ import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
 import path from 'path'
 
-const certPath = path.join(__dirname, 'cert.pfx');
+const certPath = path.join(process.cwd(), 'cert.pfx');
 
 const config: ForgeConfig = {
   packagerConfig: {},

@@ -49,11 +49,4 @@ jobs:
         with:
           draft: true
           files: |
-            out/**/*.deb
-            out/**/*.dmg
-            out/**/*Setup*
-            out/**/*.exe
-            out/**/*.nupkg
-            out/**/*.rpm
-            out/**/*.zip
-            out/**/RELEASES
+            out/make/**/*
