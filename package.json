@@ -1,7 +1,7 @@
 {
   "name": "zensteri",
   "productName": "zensteri",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
@@ -16,6 +16,7 @@
     "name": "Saj Arora",
     "email": "saj.arora24@gmail.com"
   },
+  "repository": "github:sagearora/zensteri-app",
   "license": "MIT",
   "devDependencies": {
     "@electron-forge/cli": "^6.0.3",
