@@ -1,4 +1,6 @@
 import { app, BrowserWindow } from 'electron';
+import isDev from "electron-is-dev";
+import "./ipc";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('update-electron-app')()
@@ -28,7 +30,9 @@ const createWindow = (): void => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (isDev) {
+    mainWindow.webContents.openDevTools();
+  }
 };
 
 // This method will be called when Electron has finished
