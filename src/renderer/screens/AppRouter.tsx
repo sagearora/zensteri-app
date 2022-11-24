@@ -4,6 +4,8 @@ import Layout from '../components/Layout'
 import UserGuard from '../components/UserGuard'
 import CheckinScreen from './Checkin/CheckinScreen'
 import CheckoutScreen from './Checkout/CheckoutScreen'
+import CountListScreen from './Count/CountListScreen'
+import CountScreen from './Count/CountScreen'
 import DashboardScreen from './Dashboard/DashboardScreen'
 import LabelPrintScreen from './LabelPrint/LabelPrintScreen'
 import NotFoundScreen from './NotFoundScreen'
@@ -54,6 +56,12 @@ function AppRouter() {
                         <Route path=':cycle_id' element={<SteriCycleScreen />} />
                         <Route path=':cycle_id/edit' element={<SteriCycleEditScreen />} />
                         <Route index element={<SteriCycleListScreen />} />
+                    </Route>
+                    <Route path='/counts'>
+                        <Route path='create' element={<SteriCycleStartScreen />} />
+                        <Route path=':count_id' element={<CountScreen />} />
+                        <Route path=':count_id/edit' element={<SteriCycleEditScreen />} />
+                        <Route index element={<CountListScreen />} />
                     </Route>
                     <Route path='/upload-steri-data' element={<UploadSteriData />} />
                     <Route path='/settings' element={<UserGuard adminRequired />}>

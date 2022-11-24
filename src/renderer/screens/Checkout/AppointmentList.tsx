@@ -14,14 +14,17 @@ import AddPatientModal from './AddPatientModal';
 
 const MutationInsertAppointment = gql`
     mutation insert_appt($object: appointment_insert_input!) {
-        insert_appointment_one(object: $object) {
+        insert_appointment_one(object: $object, on_conflict: {
+            constraint: appointment_patient_id_schedule_date_key,
+            update_columns: [deleted_at]
+        }) {
             ${AppointmentFragment}
         }
     }
 `
 
 export type AppointmentListProps = {
-    onSelect: (appt: AppointmentModel) => void;
+    onSelect: (appt?: AppointmentModel) => void;
     date: string;
     selected?: AppointmentModel;
 }
@@ -36,14 +39,14 @@ function AppointmentList({
     const {
         loading,
         data,
-    } = useSubscription(QueryAppointmentsByDate({sub: true}), {
+    } = useSubscription(QueryAppointmentsByDate({ sub: true }), {
         variables: {
             date,
             cursor: 0,
             limit: PageLimit,
         },
     })
-    const [insertAppt] = useMutation(MutationInsertAppointment)
+    const [insertAppt, insert_status] = useMutation(MutationInsertAppointment)
 
     const appointments = (data?.appointment || []) as AppointmentModel[];
 
@@ -54,7 +57,7 @@ function AppointmentList({
                 variables: {
                     object: {
                         patient_id,
-                        schedule_date: (dayjs().startOf('d').toDate().toUTCString()),
+                        schedule_date: date,
                         deleted_at: null,
                     }
                 }
@@ -70,6 +73,23 @@ function AppointmentList({
     const onCreatePatient = async (patient: PatientModel) => {
         setCreatePatient(false);
         return insertAppointment(patient);
+    }
+
+    const remove = async (appt: AppointmentModel) => {
+        try {
+            await insertAppt({
+                variables: {
+                    object: {
+                        patient_id: appt.patient_id,
+                        schedule_date: appt.schedule_date,
+                        deleted_at: 'now()',
+                    }
+                }
+            })
+            onSelect(undefined)
+        } catch (e) {
+            dialog.showError(e)
+        }
     }
 
     return (
@@ -97,11 +117,30 @@ function AppointmentList({
                 />
             }
             <div className='py-2'>
-                {appointments.map(appt => <button
-                    onClick={() => onSelect(appt)} 
-                    className={`p-2 my-1 rounded-xl w-full ${selected?.id === appt.id ? 'bg-green-100 hover:bg-green-200' : 'bg-slate-100 hover:bg-slate-100'}`} key={appt.id}>
-                    <p>{appt.patient.first_name} {appt.patient.last_name}</p>
-                </button>)}
+                {appointments.map(appt => <div
+                    key={appt.id}
+                    className='flex my-2 items-center'>
+                    <div className='flex-1'>
+                        <button
+                            onClick={() => onSelect(appt)}
+                            className={`p-2 rounded-xl w-full ${selected?.id === appt.id ? 'bg-green-100 hover:bg-green-200' : 'bg-slate-100 hover:bg-slate-100'}`}>
+                            <p>{appt.patient.first_name} {appt.patient.last_name}</p>
+                        </button>
+                    </div>
+                    <button disabled={insert_status.loading} className='p-2 ml-2 rounded-full hover:bg-red-200 bg-red-100 text-red-500' onClick={() => remove(appt)}>
+                        {insert_status.loading ? <svg
+                            className='w-4 h-4 animate-spin'
+                            fill="currentColor"
+                            viewBox="0 0 1792 1792"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1760 896q0 176-68.5 336t-184 275.5-275.5 184-336 68.5-336-68.5-275.5-184-184-275.5-68.5-336q0-213 97-398.5t265-305.5 374-151v228q-221 45-366.5 221t-145.5 406q0 130 51 248.5t136.5 204 204 136.5 248.5 51 248.5-51 204-136.5 136.5-204 51-248.5q0-230-145.5-406t-366.5-221v-228q206 31 374 151t265 305.5 97 398.5z" />
+                        </svg> : <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3}
+                            stroke="currentColor" className="w-4 h-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>}
+                    </button>
+                </div>
+                )}
             </div>
         </div >
     )

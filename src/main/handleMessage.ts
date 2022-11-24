@@ -23,6 +23,11 @@ export const handleMessage = async (
                 window.setFullScreen(args[0] as boolean);
                 break;
             }
+            case ZsMessageChannel.ToggleFullscreen: {
+                const window = BrowserWindow.getFocusedWindow();
+                window.setFullScreen(!window.fullScreen);
+                break;
+            }
             case ZsMessageChannel.SetSize: {
                 const window = BrowserWindow.getFocusedWindow();
                 window.setSize(args[0] as number, args[1] as number)
