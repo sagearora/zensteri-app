@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { AppointmentModel } from "../../models/appointment.model";
 import AppointmentItemScanner from "./AppointmentItemScanner";
 import AppointmentList from "./AppointmentList";
@@ -49,7 +49,7 @@ function CheckoutScreen() {
             </div>
             <AppointmentList date={date} onSelect={onSelect} selected={selected_appt} />
         </div>
-        <div className='flex-1 p-4 relative'>
+        <div className='flex-1 p-4 relative overflow-y-auto'>
             <p className='text-md font-bold mb-2'>{selected_appt ? `${selected_appt.patient.first_name} (${selected_appt.id})` : 'Pick an appointment'}</p>
             {selected_appt ? <AppointmentItemScanner
                 appointment_id={selected_appt.id}

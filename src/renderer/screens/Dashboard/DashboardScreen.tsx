@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import CheckedOut from './CheckedOut';
 import LabelScanner from './LabelScanner';
 import SporeTest from './SporeTest';
 
@@ -84,7 +83,6 @@ function DashboardScreen() {
         </Link>)}
       </div>
       <LabelScanner />
-      <CheckedOut />
       <SporeTest />
     </div>
   )

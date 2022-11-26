@@ -69,7 +69,14 @@ function CountListScreen() {
                     object: {
                         clinic_user_id: user.id,
                     }
-                }
+                },
+                refetchQueries: [{
+                    query: QueryCountList,
+                    variables: {
+                        cursor: LargeInt,
+                        limit: PageLimit,
+                    },
+                }]
             })
             const id = data?.insert_count_one?.id;
             if (id) {
@@ -85,9 +92,9 @@ function CountListScreen() {
             <div className='flex items-center mb-4'>
                 <p className='ml-2 font-bold text-gray-500'>Counts</p>
                 <div className='flex-1' />
-                <Button onClick={startCount} 
-                className='w-fit'
-                loading={insert_status.loading}>+ Start a Count</Button>
+                <Button onClick={startCount}
+                    className='w-fit'
+                    loading={insert_status.loading}>+ Start a Count</Button>
             </div>
             {counts.map(cycle => <CountListItem
                 count={cycle}

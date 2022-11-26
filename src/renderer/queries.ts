@@ -6,10 +6,10 @@ import { SteriLabelFragment } from "./models/steri-label.model";
 import { SteriFragment } from "./models/steri.model";
 
 
-export const QueryAllSteriItems = (f = SteriItemFragment) => gql`
+export const QueryAllSteriItems = ({showArchived, f = SteriItemFragment}: {showArchived?: boolean; f?: string}) => gql`
     query steri_item {
         steri_item (where: {
-            archived_at: {_is_null: true},
+            ${showArchived ? '' : `archived_at: {_is_null: true}`},
         }, order_by: {category: asc}) {
             ${f}
         }

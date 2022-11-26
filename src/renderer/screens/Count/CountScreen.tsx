@@ -5,7 +5,9 @@ import { useParams } from 'react-router-dom';
 import SteriLabel from '../../components/SteriLabel';
 import { QRType } from '../../constants';
 import BackButton from '../../lib/BackButton';
+import Button from '../../lib/Button';
 import { useDialog } from '../../lib/dialog.context';
+import { classNames } from '../../lib/form/classNames';
 import Loading from '../../lib/Loading';
 import NotFoundItem from '../../lib/NotFoundItem';
 import { CountFragment, CountModel } from '../../models/count.model';
@@ -14,6 +16,8 @@ import { SteriLabelFragment, SteriLabelModel } from '../../models/steri-label.mo
 import { QueryAllSteriItems } from '../../queries';
 import useScanner from '../../services/use-scanner';
 import { useUser } from '../../services/user.context'
+import CountController from './CountController';
+import { useCountFixer } from './use-count-fixer';
 
 const SubscriptionCount = gql`
   subscription count($id: bigint!) {
@@ -37,6 +41,14 @@ const InsertCountSteriLabel = gql`
   }
 `
 
+const MutationUpdateCount = gql`
+  mutation update_count($id: bigint!, $set: count_set_input!) {
+    update_count_by_pk(pk_columns: {id: $id}, _set: $set) {
+      ${CountFragment}
+    }
+  }
+`;
+
 function CountScreen() {
   const count_id = +useParams().count_id;
   const dialog = useDialog();
@@ -45,7 +57,7 @@ function CountScreen() {
   } = useUser();
   const {
     data: steri_item_data,
-  } = useQuery(QueryAllSteriItems())
+  } = useQuery(QueryAllSteriItems({}))
   const {
     data,
     loading,
@@ -55,10 +67,14 @@ function CountScreen() {
       id: count_id
     }
   })
+  const { fixCount } = useCountFixer()
+
+  const [updateCount, update_status] = useMutation(MutationUpdateCount)
   const [insertLabel] = useMutation(InsertCountSteriLabel)
 
   const count = data?.count_by_pk as CountModel;
   const steri_items = (steri_item_data?.steri_item || []) as SteriItemModel[];
+
 
   const onScan = async (data: {
     type: QRType;
@@ -106,17 +122,17 @@ function CountScreen() {
     onScan: onScan
   })
 
-  const categories = useMemo(() => {
+  const [categories, total_count] = useMemo(() => {
     if (!count?.steri_item_tally) {
-      return {}
+      return [{}, 0]
     }
     const item_tally = count.steri_item_tally.reduce((o, item) => ({
       ...o,
       [item.steri_item_id]: item.total,
     }), {} as { [id: number]: number })
 
-    return steri_items
-      .filter(item => item_tally[item.id] > 0)
+    const total_count = Object.keys(item_tally).reduce((total, item_id) => total += item_tally[+item_id], 0);
+    const categories = steri_items
       .reduce((all, item) => ({
         ...all,
         [item.category.toLowerCase()]: {
@@ -143,8 +159,48 @@ function CountScreen() {
           }[]
         }
       })
-
+    return [categories, total_count];
   }, [steri_items, count?.steri_item_tally])
+
+  const update = async (data: any) => {
+    try {
+      await updateCount({
+        variables: {
+          id: count_id,
+          set: data,
+        }
+      })
+    } catch (e) {
+      dialog.showError(e)
+    }
+  }
+
+  const adminFixCount = () => {
+    if (!user.is_admin) {
+      return;
+    }
+    dialog.showDialog({
+      title: 'Update All Count',
+      message: 'Warning, this will update all counts to match the total number of counted items. This cannot be undone',
+      buttons: [{
+        children: 'Cancel',
+      }, {
+        children: 'Confirm',
+        className: 'bg-red-200',
+        onClick: async () => {
+          await fixCount(count)
+          dialog.showToast({ message: 'Count updated', type: 'success' })
+        }
+      }]
+    })
+  }
+
+  const isCycleFailed = () => {
+    return Object.keys(categories)
+      .findIndex(id => {
+        return categories[id].items.findIndex(item => item.total_count > item.total) > -1
+      }) > -1
+  }
 
   if (error) {
     return <>{JSON.stringify(error)}</>
@@ -168,6 +224,8 @@ function CountScreen() {
           <p className='text-sm'>Start: {dayjs(count.created_at).format('MM/DD/YYYY HH:mm')}</p>
           <p className='text-sm'>Finish: {count.finish_at ? dayjs(count.finish_at).format('MM/DD/YYYY HH:mm') : 'Not finished'}</p>
         </div>
+        {user.is_admin && <div className=''><Button
+          onClick={adminFixCount} className='bg-red-200 w-fit'>Match Counts</Button></div>}
       </div>
       <div className='py-4 flex flex-col items-center'>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 mb-2">
@@ -175,19 +233,26 @@ function CountScreen() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
         </svg>
         {(count.steri_labels || []).length > 0 && <>
-          <p className='text-5xl font-bold text-green-600'>{count.steri_labels.length} Items</p>
+          <p className='text-5xl font-bold text-green-600'>{total_count} Items</p>
           <p className='text-lg'>Last Added: <span className='font-bold text-green-600'>
             {count.steri_labels[0]?.steri_label.steri_item.name}</span> {dayjs(count.steri_labels[0]?.created_at).fromNow()}</p>
         </>}
         <h2 className='text-md font-semibold text-gray-600'>Use the handheld scanner to scan all items that you are counting.</h2>
       </div>
+      <CountController
+        finish_at={count.finish_at}
+        status={count.status}
+        updateCount={update}
+        loading={update_status.loading}
+        isCountFailed={isCycleFailed}
+      />
       <div className='py-4'>
         {Object.keys(categories).map(category => <div
           key={category}
           className='p-2 bg-slate-100 mb-2 rounded-xl'>
           <p className='uppercase font-semibold text-sm'>{category}</p>
           {categories[category].items.map(item => <div key={item.id}
-            className='flex text-lg py-1 border-b-2'>
+            className={classNames('flex text-lg py-1 border-b-2', item.total < item.total_count ? 'bg-red-100' : 'bg-green-100')}>
             <p className='flex-1'>{item.name}</p>
             <p className='font-bold'>{item.total}/{item.total_count}</p>
           </div>)}
