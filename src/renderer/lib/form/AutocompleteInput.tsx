@@ -39,8 +39,8 @@ const AutocompleteInput = forwardRef<HTMLInputElement, AutocompleteInputProps>((
         onInputChange(e.target.value)
     }
 
-    const select = (item: { value: any }) => {
-        field.onChange({ target: { value: item.value } })
+    const select = (item: {value: any; label: string;}) => {
+        field.onChange(item)
         setOpen(false)
     }
 
@@ -53,6 +53,7 @@ const AutocompleteInput = forwardRef<HTMLInputElement, AutocompleteInputProps>((
                 {label ? <label
                     htmlFor={label}
                     className={classNames(
+                        className,
                         "block text-gray-700 text-sm font-bold mb-2",
                         fieldState.error && 'text-red-500'
                     )}>
@@ -63,7 +64,7 @@ const AutocompleteInput = forwardRef<HTMLInputElement, AutocompleteInputProps>((
                     ref={ref}
                     onBlur={() => setOpen(false)}
                     onFocus={() => setOpen(true)}
-                    value={field.value}
+                    value={field.value?.label}
                     onChange={onChange}
                     className={classNames(
                         "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline",
@@ -84,7 +85,8 @@ const AutocompleteInput = forwardRef<HTMLInputElement, AutocompleteInputProps>((
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                 >
-                    <Menu.Items static className="origin-top absolute left-0 right-0 mt-2 w-56 rounded-md shadow-lg z-50 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <Menu.Items static className="origin-top absolute left-0 right-0 mt-2 w-56
+                    max-h-48 overflow-y-auto rounded-md shadow-lg z-50 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <div className="py-1"></div>
                         {items.map(item => <Menu.Item key={item.value}>{({ active }) => (
                             <button

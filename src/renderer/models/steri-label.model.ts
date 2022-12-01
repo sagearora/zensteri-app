@@ -5,6 +5,7 @@ export enum SteriLabelEvent {
     SteriCycleRemoveItem='stericycle_remove_item',
     AppointmentCheckout='appointment_checkout',
     AppointmentReturn='appointment_return',
+    UpdateSteriItemId='update_steri_item_id',
 }
 
 export type SteriLabelModel = {

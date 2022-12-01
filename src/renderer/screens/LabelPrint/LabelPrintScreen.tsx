@@ -30,7 +30,7 @@ function LabelPrintScreen() {
     const {
         data,
         loading,
-    } = useQuery(QueryAllSteriItems())
+    } = useQuery(QueryAllSteriItems({}))
     const [is_printing, setIsPrinting] = useState(false);
     const [to_print, setToPrint] = useState<{ [id: number]: number }>({})
     const [insertLabel, insert_label_status] = useMutation(MutationInsertLabel)

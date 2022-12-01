@@ -1,7 +1,7 @@
 {
   "name": "zensteri",
   "productName": "zensteri",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
@@ -70,6 +70,7 @@
     "react-div-100vh": "^0.7.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.38.0",
+    "react-idle-timer": "^5.4.2",
     "react-router-dom": "^6.4.2",
     "subscriptions-transport-ws": "^0.11.0",
     "update-electron-app": "^2.0.1",

@@ -2,7 +2,6 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import BackButton from "../../../lib/BackButton";
-import Button from "../../../lib/Button";
 import { useDialog } from "../../../lib/dialog.context";
 import { SteriItemModel } from "../../../models/steri-item.model";
 import { QueryAllSteriItems } from "../../../queries";

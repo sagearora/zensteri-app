@@ -1,12 +1,12 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { UserModel } from "../models/user.model";
 import NoUserScreen from "../screens/NoUserScreen";
 import { useDialog } from "../lib/dialog.context";
 import dayjs from "dayjs";
+import { useIdleTimer } from 'react-idle-timer'
 
 const UserContext = createContext<{
     user: UserModel;
-    expiry: Date;
     endSession: () => void;
 }>({} as any);
 
@@ -15,30 +15,37 @@ export type ProvideUserProps = {
     adminRequired?: boolean;
 }
 
-const ExpirySeconds = 60 * 10 // 10 minutes
+const ExpiryMilliSeconds = 60 * 10 * 1000 // 10 minutes
 
 export const ProvideUser = ({
     children,
     adminRequired,
 }: ProvideUserProps) => {
+    const idle_activity_div = useRef<HTMLDivElement>();
     const dialog = useDialog();
-    const [expiry, setExpiry] = useState<Date>()
     const [user, _setUser] = useState<UserModel | undefined>();
+    const onIdle = () => {
+        setUser(undefined)
+    }
+
+    useIdleTimer({
+        onIdle,
+        timeout: ExpiryMilliSeconds,
+        element: idle_activity_div.current,
+    })
 
     useEffect(() => {
         const saved_user = localStorage.getItem('user')
         const saved = saved_user ? JSON.parse(saved_user) as {
-            expiry: string;
             user: UserModel
         } : undefined
-        if (!saved || !saved.user || dayjs().isAfter(dayjs(saved.expiry))) {
+        if (!saved || !saved.user) {
             return
         }
         if (adminRequired && !saved.user.is_admin) {
             return
         }
         _setUser(saved.user)
-        setExpiry(new Date(saved.expiry))
     }, [adminRequired])
 
     const setUser = (user?: UserModel) => {
@@ -47,25 +54,19 @@ export const ProvideUser = ({
             return;
         }
         _setUser(user);
-        const expiry = dayjs().add(ExpirySeconds, 'seconds').toDate()
-        setExpiry(expiry)
         localStorage.setItem('user', user ? JSON.stringify({
-            expiry: expiry.toISOString(),
             user
         }) : null)
     }
 
-    if (!user) {
-        return <NoUserScreen setUser={setUser} />
-    }
 
-    return <UserContext.Provider value={{
-        user,
-        expiry,
-        endSession: () => setUser(undefined)
-    }}>
-        {children}
-    </UserContext.Provider>
+    return <div ref={idle_activity_div}>
+        {user ? <UserContext.Provider value={{
+            user,
+            endSession: () => setUser(undefined)
+        }}>{children}</UserContext.Provider> : <NoUserScreen setUser={setUser} />
+        }
+    </div>
 }
 
 export const useUser = () => {

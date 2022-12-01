@@ -22,7 +22,7 @@ function SteriItemCreateScreen() {
         }
     `, {
         refetchQueries: [{
-            query: QueryAllSteriItems(),
+            query: QueryAllSteriItems({}),
         }]
     })
 
