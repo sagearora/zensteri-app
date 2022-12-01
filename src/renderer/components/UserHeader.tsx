@@ -11,7 +11,6 @@ function UserHeader() {
     const navigate = useNavigate();
     const {
         user,
-        expiry,
         endSession
     } = useUser()
 
@@ -22,7 +21,7 @@ function UserHeader() {
 
     return (
         <div className='container py-4'>
-            <Button onClick={endSessionRoute}>{user.name} (Expires {dayjs(expiry).fromNow()})</Button>
+            <Button onClick={endSessionRoute}>{user.name}</Button>
         </div>
     )
 }
