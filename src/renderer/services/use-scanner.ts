@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { resolveQr } from './qr-service';
+import { useUser } from './user.context';
 
 export type useScannerProps = {
     is_scanning?: boolean;
@@ -10,12 +11,13 @@ function useScanner({
     onScan,
 }: useScannerProps) {
     let code = "";
-    let reading = false;
+    const { resetInactiveTimer } = useUser();
     function onKeyDown(event: KeyboardEvent) {
         if (event.key === 'Enter') {
             const data = resolveQr(code)
             console.log(code)
             if (data) {
+                resetInactiveTimer()
                 onScan(data)
             }
             code = "";

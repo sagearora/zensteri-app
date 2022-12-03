@@ -39,6 +39,7 @@ function DateInput({
             </label> : null}
             <DatePicker
                 format='yyyy/MM/dd'
+                className='datepicker'
                 onChange={field.onChange}
                 value={field.value} />
             {fieldState.error && <p className="text-red-500 text-xs italic mt-2">{fieldState.error.message}</p>}

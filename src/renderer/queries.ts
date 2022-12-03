@@ -4,6 +4,7 @@ import { OpFragment } from "./models/op.model";
 import { SteriItemFragment } from "./models/steri-item.model";
 import { SteriLabelFragment } from "./models/steri-label.model";
 import { SteriFragment } from "./models/steri.model";
+import { TaskFragment } from "./models/task.model";
 
 
 export const QueryAllSteriItems = ({showArchived, f = SteriItemFragment}: {showArchived?: boolean; f?: string}) => gql`
@@ -64,6 +65,24 @@ export const QueryLabelList= ({
             limit: $limit, where: {
             id: {_lt: $cursor}
         }, order_by: {id: desc}) {
+            ${f}
+        }
+    }
+`;
+
+
+export const QueryTaskList = ({
+    sub,
+    f = TaskFragment
+}: {
+    sub?: boolean;
+    f?: string;
+}) => gql`
+    ${sub ? 'subscription' : 'query'} task($limit: Int!, $cursor: bigint!) {
+        task(
+            limit: $limit, where: {
+            id: {_gt: $cursor}
+        }, order_by: {id: asc}) {
             ${f}
         }
     }

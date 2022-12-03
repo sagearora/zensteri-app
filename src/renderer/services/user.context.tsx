@@ -7,6 +7,7 @@ import { useIdleTimer } from 'react-idle-timer'
 
 const UserContext = createContext<{
     user: UserModel;
+    resetInactiveTimer: () => void;
     endSession: () => void;
 }>({} as any);
 
@@ -28,7 +29,7 @@ export const ProvideUser = ({
         setUser(undefined)
     }
 
-    useIdleTimer({
+    const timer = useIdleTimer({
         onIdle,
         timeout: ExpiryMilliSeconds,
         element: idle_activity_div.current,
@@ -63,6 +64,7 @@ export const ProvideUser = ({
     return <div ref={idle_activity_div}>
         {user ? <UserContext.Provider value={{
             user,
+            resetInactiveTimer: () => timer.reset(),
             endSession: () => setUser(undefined)
         }}>{children}</UserContext.Provider> : <NoUserScreen setUser={setUser} />
         }

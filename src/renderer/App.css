@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .react-datepicker-wrapper,
+    .react-datepicker__input-container,
+    .react-datepicker__input-container input {
+        display: block;
+        width: 100%;
+    }
+}

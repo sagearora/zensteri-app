@@ -31,6 +31,9 @@ import SteriCycleEditScreen from './SteriCycle/SteriCycleEditScreen'
 import SteriCycleListScreen from './SteriCycle/SteriCycleListScreen'
 import SteriCycleScreen from './SteriCycle/SteriCycleScreen'
 import SteriCycleStartScreen from './SteriCycle/SteriCycleStartScreen'
+import TaskEditScreen from './Tasks/TaskEditScreen'
+import TaskListScreen from './Tasks/TaskListScreen'
+import TaskScreen from './Tasks/TaskScreen'
 import ToolsScreen from './Tools/ToolsScreen'
 import UploadSteriData from './UploadSteriData/UploadSteriData'
 
@@ -63,6 +66,11 @@ function AppRouter() {
                         <Route path=':count_id' element={<CountScreen />} />
                         <Route path=':count_id/edit' element={<SteriCycleEditScreen />} />
                         <Route index element={<CountListScreen />} />
+                    </Route>
+                    <Route path='/tasks'>
+                        <Route path=':task_id' element={<TaskScreen />} />
+                        <Route path=':task_id/edit' element={<TaskEditScreen />} />
+                        <Route index element={<TaskListScreen />} />
                     </Route>
                     <Route path='/tools' element={<ToolsScreen />} />
                     <Route path='/upload-steri-data' element={<UploadSteriData />} />
