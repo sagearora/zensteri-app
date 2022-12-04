@@ -1,4 +1,4 @@
-import React, { DetailedHTMLProps, InputHTMLAttributes, useState } from 'react';
+import React, { DetailedHTMLProps, InputHTMLAttributes, RefObject, useCallback, useState } from 'react';
 import DatePicker from 'react-date-picker';
 import { useController } from 'react-hook-form';
 
@@ -6,6 +6,7 @@ export interface DateInputProps extends DetailedHTMLProps<InputHTMLAttributes<HT
     control: any;
     name: string;
     label?: string;
+    ref?: RefObject<HTMLInputElement>;
     disablePadding?: boolean;
 }
 
@@ -14,8 +15,7 @@ function DateInput({
     name,
     ref,
     label,
-    disablePadding,
-    ...props
+    disablePadding
 }: DateInputProps) {
     const {
         field, fieldState
@@ -23,6 +23,10 @@ function DateInput({
         control,
         name,
     })
+
+    const onChange = useCallback((value: Date) => {
+        field.onChange(value)
+    }, [field.onChange])
 
     return (
         <div className={[
@@ -38,9 +42,10 @@ function DateInput({
                 {label}
             </label> : null}
             <DatePicker
+                inputRef={ref}
                 format='yyyy/MM/dd'
                 className='datepicker'
-                onChange={field.onChange}
+                onChange={onChange}
                 value={field.value} />
             {fieldState.error && <p className="text-red-500 text-xs italic mt-2">{fieldState.error.message}</p>}
         </div>
