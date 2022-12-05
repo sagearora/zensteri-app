@@ -55,7 +55,7 @@ function SporeTestItem({
 
 
     return (
-        <div className='border-b-2 p-4'>
+        <div className='p-4'>
             <p className='text-sm text-gray-500'>{cycle.steri?.name}</p>
             <p className='text-lg font-bold'>#{cycle.cycle_number}</p>
             <p className='text-sm'>Start: {cycle.start_at ? `${dayjs(cycle.start_at).format('MM/DD/YYYY HH:mm')} - ${cycle.start_user?.name}` : 'Not Started'}</p>

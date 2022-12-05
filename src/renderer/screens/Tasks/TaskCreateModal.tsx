@@ -12,11 +12,12 @@ export type TaskCreateModalProps = {
 
 function TaskCreateModal({
     onCreate,
+    children,
 }: TaskCreateModalProps) {
     const [show, setShow] = useState(false);
     const { clinic } = useClinic();
     const dialog = useDialog();
-    const [execute] = useMutation(gql`
+    const [execute, insert_status] = useMutation(gql`
         mutation create($object: task_insert_input!) {
             insert_task_one(
                 object: $object,
@@ -47,11 +48,15 @@ function TaskCreateModal({
     }
 
     return (
+        <>
         <TaskForm
             show={show}
+            loading={insert_status.loading}
             onClose={() => setShow(false)}
             onSave={onSave}
         />
+        {children(() => setShow(true))}
+        </>
     )
 }
 

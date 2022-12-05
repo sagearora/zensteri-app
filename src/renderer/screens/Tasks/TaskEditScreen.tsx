@@ -78,8 +78,8 @@ function TaskEditScreen() {
     }
   }
 
-  const onSave = async (v: { id: string; content: string }) => {
-    const items = task.items.findIndex(i => i.id === v.id) > -1 ? task.items.map(item => item.id === v.id ? v : item) : [...task.items, v]
+  const onSave = async (v: { id: string; content: string }, idx?: number) => {
+    const items = idx > -1 ? task.items.map((item, i) => idx === i ? v : item) : [...task.items, v]
     if (await updateTask({
       items,
     })) {
@@ -185,7 +185,7 @@ function TaskEditScreen() {
             loading={update_status.loading}
             item={item}
             dismiss={() => setShowEditItem(-1)}
-            onSave={v => onSave(v)}
+            onSave={v => onSave(v, idx)}
           /> : <div className='items-center flex'>
             <button onClick={() => deleteItem(item.id)} className='font-bold mr-2 p-2 rounded-full bg-red-200'>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">

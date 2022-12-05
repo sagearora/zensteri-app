@@ -7,7 +7,7 @@ import { TaskEventFragment, TaskEventModel } from '../../models/task-event.model
 import TaskModal from './TaskModal'
 
 const SubscriptionTasks = gql`
-    subscription task_events_for_day($start: timestamptz, $end: timestamptz) {
+    subscription task_events_for_day($start: date!, $end: date!) {
         task_event(where: {_and:[
             {event_at: {_gte: $start}},
             {event_at: {_lt: $end}}
@@ -69,10 +69,10 @@ function TasksWidget() {
                 task_event_id={show_task}
                 onClose={() => setShowTask(undefined)}
             />}
-            {task_events.map(task_event => <button
+            {task_events.map((task_event, idx) => <button
                 onClick={() => setShowTask(task_event.id)}
-                key={task_event.id} className={classNames('flex w-full text-left items-start py-2', task_event.completed_at && 'text-green-500')}>
-                <span className='font-bold mr-2'>
+                key={task_event.id} className={classNames('flex w-full text-left items-center py-2', idx !== task_events.length - 1 && 'border-b-2')}>
+                <span className={classNames('font-bold mr-2', task_event.completed_at && 'text-green-500')}>
                     {task_event.completed_at ? <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -100,10 +100,13 @@ function TasksWidget() {
                         </svg>}
                 </span>
                 <div className='flex-1'>
-                    <p className={classNames(task_event.completed_at && 'line-through', 'text-lg')}>{task_event.task.title}</p>
+                    <p className={classNames(task_event.completed_at && 'line-through text-green-500', 'text-lg')}>{task_event.task.title}</p>
                     {task_event.completed_at && <p className={'text-sm text-slate-500'}>{task_event.clinic_user?.name} @ {
                         dayjs(task_event.completed_at).format('DD/MM/YYYY h:mm a')}</p>}
                 </div>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
             </button>)}
 
         </div>
