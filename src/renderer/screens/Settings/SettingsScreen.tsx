@@ -54,9 +54,6 @@ function SettingsScreen() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
         </Link>
-        <button className='flex items-center hover:bg-slate-100 p-2 border-b-2'>
-            Switch to OP Mode
-        </button>
         <div className='my-6'>
             <Button onClick={signout}>Sign Out</Button>
         </div>

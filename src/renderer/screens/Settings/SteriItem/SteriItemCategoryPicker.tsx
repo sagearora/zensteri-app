@@ -1,6 +1,6 @@
 import { gql, useQuery } from '@apollo/client';
 import React, { useState } from 'react';
-import { Control, FieldValues, useController } from 'react-hook-form';
+import { Control, FieldValues } from 'react-hook-form';
 import AutocompleteInput from '../../../lib/form/AutocompleteInput';
 import Loading from '../../../lib/Loading';
 
@@ -19,11 +19,10 @@ export const SteriItemCategoryPicker = ({
     name,
     control,
 }: SteriItemCategoryPickerProps) => {
-    const { field, fieldState } = useController({
-        control,
-        name,
-    })
-    const [options, setOptions] = useState([])
+    const [options, setOptions] = useState<{
+        value: string;
+        label: string;
+    }[]>([])
     const { loading, data } = useQuery(QueryUniqueCategories, {
         fetchPolicy: 'network-only'
     })
